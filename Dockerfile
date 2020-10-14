@@ -6,7 +6,7 @@ RUN apt-get update&&apt-get install tzdata && dpkg-reconfigure -f noninteractive
   && apt-get install -y vim && apt-get install -y iputils-ping && apt-get install -y cmake
 RUN apt-get update && apt-get install -y build-essential
 
-COPY ./rtsp.cpp ./CMakeLists.txt /ffmpeg-demo/
+COPY ./test.cpp ./CMakeLists.txt /ffmpeg-demo/
 
 EXPOSE 9000
 

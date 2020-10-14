@@ -11,7 +11,7 @@ extern "C" {
 #include <libswscale/swscale.h>
 }
 
-int main(int argc, char** argv) {
+int main11(int argc, char** argv) {
 
     // Open the initial context variables that are needed
     SwsContext *img_convert_ctx;
@@ -24,6 +24,8 @@ int main(int argc, char** argv) {
     avformat_network_init();
 
     //open RTSP
+    //rtmp://172.18.64.55:1935/live/34020000002000000001@34020000001310000003
+    //rtsp://admin:admin123@172.18.64.151:554/cam/realmonitor?channel=1&subtype=0
     if (avformat_open_input(&format_ctx, "rtsp://134.169.178.187:8554/h264.3gp",
             NULL, NULL) != 0) {
         return EXIT_FAILURE;

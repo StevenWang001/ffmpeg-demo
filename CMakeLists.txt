@@ -27,7 +27,7 @@ include_directories(${PROJECT_SOURCE_DIR}/)
 # add complate file
 aux_source_directory(. SRC_DIR)
 
-add_executable(${exename} ${SRC_DIR} rtsp.cpp)
+add_executable(${exename} ${SRC_DIR} test.cpp)
 
 #pthreaed
 find_package(Threads REQUIRED)
