@@ -9,6 +9,8 @@ extern "C" {
 #include <libswscale/swscale.h>
 }
 
+int save_frame_as_jpeg(AVCodecContext *pCodecCtx, AVFrame *pFrame, int FrameNo);
+
 int main(int argc, char **argv) {
     // Register everything
     av_register_all();
@@ -65,8 +67,10 @@ int main(int argc, char **argv) {
             std::cout << "4 decoding" << std::endl;
             int check = 0;
             int result = avcodec_decode_video2(codec_ctx, picture, &check, packet);
+            save_frame_as_jpeg(codec_ctx, picture, 1);
             std::cout << "Bytes decoded " << result << " check " << check
                       << std::endl;
+            break;
         }
         av_packet_unref(packet);
         av_init_packet(packet);
@@ -77,4 +81,43 @@ int main(int argc, char **argv) {
     avformat_close_input(&format_ctx);
 
     return (EXIT_SUCCESS);
+}
+
+int save_frame_as_jpeg(AVCodecContext *pCodecCtx, AVFrame *pFrame, int FrameNo) {
+    AVCodec *jpegCodec = avcodec_find_encoder(AV_CODEC_ID_MJPEG);
+    if (!jpegCodec) {
+        return -1;
+    }
+    AVCodecContext *jpegContext = avcodec_alloc_context3(jpegCodec);
+    if (!jpegContext) {
+        return -1;
+    }
+
+    jpegContext->pix_fmt = pCodecCtx->pix_fmt;
+    jpegContext->height = pFrame->height;
+    jpegContext->width = pFrame->width;
+    jpegContext->time_base = (AVRational){1, 20};
+
+    if (avcodec_open2(jpegContext, jpegCodec, NULL) < 0) {
+        return -1;
+    }
+    FILE *JPEGFile;
+    char JPEGFName[256];
+
+    AVPacket packet = {.data = NULL, .size = 0};
+    av_init_packet(&packet);
+    int gotFrame;
+
+    if (avcodec_encode_video2(jpegContext, &packet, pFrame, &gotFrame) < 0) {
+        return -1;
+    }
+
+    sprintf(JPEGFName, "dvr-%06d.jpg", FrameNo);
+    JPEGFile = fopen(JPEGFName, "wb");
+    fwrite(packet.data, 1, packet.size, JPEGFile);
+    fclose(JPEGFile);
+
+    av_free_packet(&packet);
+    avcodec_close(jpegContext);
+    return 0;
 }
